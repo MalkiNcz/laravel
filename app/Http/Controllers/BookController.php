@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Session;
 
 class BookController extends Controller
 {
@@ -13,7 +13,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::paginate(1);
+        $books = Book::paginate(15);
         return view('books.index', ['books' => $books]);
     }
 
@@ -22,7 +22,7 @@ class BookController extends Controller
      */
     public function create()
     {
-        //
+        return view('books.create');
     }
 
     /**
@@ -30,7 +30,21 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|min:0|max:255',
+            'price' => 'required|numeric|min:0|max:999',
+            'author' => 'required|string|min:0|max:255'
+        ]);
+
+        $book = new Book();
+        $book->name = $request->name;
+        $book->author = $request->author;
+        $book->price = $request->price;
+
+        $book->save();
+
+        Session::flash('success', 'Book created successfully');
+        return redirect()->route('books.index');
     }
 
     /**
